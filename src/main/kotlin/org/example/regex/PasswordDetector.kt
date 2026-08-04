@@ -12,10 +12,10 @@ class PasswordDetector : ContextDetector() {
     }
 
     private abstract inner class PasswordState(
-        private val length: Int,
-        private val seenUpper: Boolean,
-        private val seenSpecial: Boolean,
-        private val lastWasSpecial: Boolean,
+        protected val length: Int,
+        protected val seenUpper: Boolean,
+        protected val seenSpecial: Boolean,
+        protected val lastWasSpecial: Boolean,
     ) : State {
         protected fun advance(token: String) {
             val tokenIsUppercase = TokenRules.isUppercase(token)
@@ -31,8 +31,12 @@ class PasswordDetector : ContextDetector() {
             )
         }
 
-        protected fun isComplexEnough(): Boolean {
-            return length >= minimumLength && seenUpper && seenSpecial && !lastWasSpecial
+        final override fun onEnd(context: ContextDetector) {
+            if (acceptsAtEnd()) {
+                context.accept()
+            } else {
+                context.reject()
+            }
         }
 
         protected abstract fun nextState(
@@ -41,6 +45,8 @@ class PasswordDetector : ContextDetector() {
             seenSpecial: Boolean,
             lastWasSpecial: Boolean,
         ): PasswordState
+
+        protected abstract fun acceptsAtEnd(): Boolean
     }
 
     private inner class CollectingState(
@@ -51,10 +57,6 @@ class PasswordDetector : ContextDetector() {
     ) : PasswordState(length, seenUpper, seenSpecial, lastWasSpecial) {
         override fun handle(context: ContextDetector, token: String) {
             advance(token)
-        }
-
-        override fun onEnd(context: ContextDetector) {
-            context.reject()
         }
 
         override fun nextState(
@@ -69,6 +71,10 @@ class PasswordDetector : ContextDetector() {
                 CollectingState(length, seenUpper, seenSpecial, lastWasSpecial)
             }
         }
+
+        override fun acceptsAtEnd(): Boolean {
+            return false
+        }
     }
 
     private inner class ValidatingState(
@@ -81,14 +87,6 @@ class PasswordDetector : ContextDetector() {
             advance(token)
         }
 
-        override fun onEnd(context: ContextDetector) {
-            if (isComplexEnough()) {
-                context.accept()
-            } else {
-                context.reject()
-            }
-        }
-
         override fun nextState(
             length: Int,
             seenUpper: Boolean,
@@ -96,6 +94,10 @@ class PasswordDetector : ContextDetector() {
             lastWasSpecial: Boolean,
         ): PasswordState {
             return ValidatingState(length, seenUpper, seenSpecial, lastWasSpecial)
+        }
+
+        override fun acceptsAtEnd(): Boolean {
+            return length >= minimumLength && seenUpper && seenSpecial && !lastWasSpecial
         }
     }
 }
