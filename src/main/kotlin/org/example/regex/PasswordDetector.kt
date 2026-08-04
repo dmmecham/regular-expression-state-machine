@@ -5,99 +5,135 @@ class PasswordDetector : ContextDetector() {
         const val minimumLength = 8
     }
 
-    override fun createInitialState(): State = CollectingState(0, false, false, false)
+    override fun createInitialState(): State = CollectingState(0, MissingUpperAndSpecial)
 
     private fun transitionTo(state: PasswordState) {
         super.transitionTo(state)
     }
 
     private abstract inner class PasswordState(
-        protected val length: Int,
-        protected val seenUpper: Boolean,
-        protected val seenSpecial: Boolean,
-        protected val lastWasSpecial: Boolean,
+        protected val complexity: ComplexityState,
     ) : State {
-        protected fun advance(token: String) {
-            val tokenIsUppercase = TokenRules.isUppercase(token)
-            val tokenIsSpecial = TokenRules.isSpecial(token)
-
-            transitionTo(
-                nextState(
-                    length = length + 1,
-                    seenUpper = seenUpper || tokenIsUppercase,
-                    seenSpecial = seenSpecial || tokenIsSpecial,
-                    lastWasSpecial = tokenIsSpecial,
-                )
-            )
-        }
-
-        final override fun onEnd(context: ContextDetector) {
-            if (acceptsAtEnd()) {
-                context.accept()
-            } else {
-                context.reject()
-            }
-        }
-
-        protected abstract fun nextState(
-            length: Int,
-            seenUpper: Boolean,
-            seenSpecial: Boolean,
-            lastWasSpecial: Boolean,
-        ): PasswordState
-
-        protected abstract fun acceptsAtEnd(): Boolean
     }
 
     private inner class CollectingState(
-        length: Int,
-        seenUpper: Boolean,
-        seenSpecial: Boolean,
-        lastWasSpecial: Boolean,
-    ) : PasswordState(length, seenUpper, seenSpecial, lastWasSpecial) {
+        private val length: Int,
+        complexity: ComplexityState,
+    ) : PasswordState(complexity) {
         override fun handle(context: ContextDetector, token: String) {
-            advance(token)
+            val nextLength = length + 1
+            val nextComplexity = complexity.onToken(token)
+
+            transitionTo(
+                if (nextLength >= minimumLength) {
+                    EnforcingState(nextComplexity)
+                } else {
+                    CollectingState(nextLength, nextComplexity)
+                }
+            )
         }
 
-        override fun nextState(
-            length: Int,
-            seenUpper: Boolean,
-            seenSpecial: Boolean,
-            lastWasSpecial: Boolean,
-        ): PasswordState {
-            return if (length >= minimumLength) {
-                ValidatingState(length, seenUpper, seenSpecial, lastWasSpecial)
-            } else {
-                CollectingState(length, seenUpper, seenSpecial, lastWasSpecial)
-            }
-        }
-
-        override fun acceptsAtEnd(): Boolean {
-            return false
+        override fun onEnd(context: ContextDetector) {
+            context.reject()
         }
     }
 
-    private inner class ValidatingState(
-        length: Int,
-        seenUpper: Boolean,
-        seenSpecial: Boolean,
-        lastWasSpecial: Boolean,
-    ) : PasswordState(length, seenUpper, seenSpecial, lastWasSpecial) {
+    private inner class EnforcingState(
+        complexity: ComplexityState,
+    ) : PasswordState(complexity) {
         override fun handle(context: ContextDetector, token: String) {
-            advance(token)
+            transitionTo(EnforcingState(complexity.onToken(token)))
         }
 
-        override fun nextState(
-            length: Int,
-            seenUpper: Boolean,
-            seenSpecial: Boolean,
-            lastWasSpecial: Boolean,
-        ): PasswordState {
-            return ValidatingState(length, seenUpper, seenSpecial, lastWasSpecial)
+        override fun onEnd(context: ContextDetector) {
+            complexity.onEnd(context)
+        }
+    }
+
+    private interface ComplexityState {
+        fun onToken(token: String): ComplexityState
+        fun onEnd(context: ContextDetector)
+    }
+
+    private abstract class RejectingComplexityState : ComplexityState {
+        final override fun onEnd(context: ContextDetector) {
+            context.reject()
+        }
+    }
+
+    private object MissingUpperAndSpecial : RejectingComplexityState() {
+        override fun onToken(token: String): ComplexityState {
+            val tokenIsUppercase = TokenRules.isUppercase(token)
+            val tokenIsSpecial = TokenRules.isSpecial(token)
+
+            return when {
+                tokenIsUppercase && tokenIsSpecial -> UpperAndSpecialTrailing
+                tokenIsUppercase -> MissingSpecial
+                tokenIsSpecial -> MissingUpperWithTrailingSpecial
+                else -> MissingUpperAndSpecial
+            }
+        }
+    }
+
+    private object MissingUpperWithTrailingSpecial : RejectingComplexityState() {
+        override fun onToken(token: String): ComplexityState {
+            val tokenIsUppercase = TokenRules.isUppercase(token)
+            val tokenIsSpecial = TokenRules.isSpecial(token)
+
+            return when {
+                tokenIsUppercase && tokenIsSpecial -> UpperAndSpecialTrailing
+                tokenIsUppercase -> UpperAndSpecialReady
+                tokenIsSpecial -> MissingUpperWithTrailingSpecial
+                else -> MissingUpperNoTrailingSpecial
+            }
+        }
+    }
+
+    private object MissingUpperNoTrailingSpecial : RejectingComplexityState() {
+        override fun onToken(token: String): ComplexityState {
+            val tokenIsUppercase = TokenRules.isUppercase(token)
+            val tokenIsSpecial = TokenRules.isSpecial(token)
+
+            return when {
+                tokenIsUppercase && tokenIsSpecial -> UpperAndSpecialTrailing
+                tokenIsUppercase -> UpperAndSpecialReady
+                tokenIsSpecial -> MissingUpperWithTrailingSpecial
+                else -> MissingUpperNoTrailingSpecial
+            }
+        }
+    }
+
+    private object MissingSpecial : RejectingComplexityState() {
+        override fun onToken(token: String): ComplexityState {
+            return if (TokenRules.isSpecial(token)) {
+                UpperAndSpecialTrailing
+            } else {
+                MissingSpecial
+            }
+        }
+    }
+
+    private object UpperAndSpecialTrailing : RejectingComplexityState() {
+        override fun onToken(token: String): ComplexityState {
+            return if (TokenRules.isSpecial(token)) {
+                UpperAndSpecialTrailing
+            } else {
+                UpperAndSpecialReady
+            }
+        }
+    }
+
+    private object UpperAndSpecialReady : ComplexityState {
+        override fun onToken(token: String): ComplexityState {
+            return if (TokenRules.isSpecial(token)) {
+                UpperAndSpecialTrailing
+            } else {
+                UpperAndSpecialReady
+            }
         }
 
-        override fun acceptsAtEnd(): Boolean {
-            return length >= minimumLength && seenUpper && seenSpecial && !lastWasSpecial
+        override fun onEnd(context: ContextDetector) {
+            context.accept()
         }
     }
 }

@@ -151,11 +151,13 @@ class DetectorsTest {
     fun passwordAdditionalTrickyCases() {
         assertTrue(passwordDetector.detect("A!aaaaa1"))
         assertTrue(passwordDetector.detect("aaaaaa!A"))
+        assertTrue(passwordDetector.detect("A!aaaaa1!b"))
 
         assertFalse(passwordDetector.detect("A!aaaa1"))
         assertFalse(passwordDetector.detect("Abcdefg?1"))
         assertFalse(passwordDetector.detect("ABCDEFGH!"))
         assertFalse(passwordDetector.detect("12345678*"))
         assertFalse(passwordDetector.detect("Aa1!aaaa*"))
+        assertFalse(passwordDetector.detect("A!aaaaa1!"))
     }
 }
