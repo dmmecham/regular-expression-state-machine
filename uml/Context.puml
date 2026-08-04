@@ -10,8 +10,10 @@ abstract class ContextDetector {
   +reject(): void
   #initialState(): State
   #endOfInput(): void
+  #resetForInput(): void
   -tokens: List<String>
   -index: Int
+  -terminal: Boolean
   -currentState: State
   -accepted: Boolean
 }

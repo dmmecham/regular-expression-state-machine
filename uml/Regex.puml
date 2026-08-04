@@ -4,117 +4,124 @@ title Regex Detector Program UML (State Pattern)
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
 
-interface Detector {
-	+detect(input: String): Boolean
+package "state.regex" {
+	interface Detector {
+		+detect(input: String): Boolean
+	}
+
+	interface State {
+		+handle(context: ContextDetector, token: String): void
+		+onEnd(context: ContextDetector): void
+	}
+
+	abstract class ContextDetector {
+		-tokens: List<String>
+		-index: Int
+		-terminal: Boolean
+		-accepted: Boolean
+		#currentState: State
+		+detect(input: String): Boolean
+		+nextToken(): String?
+		+transitionTo(state: State): void
+		+reject(): void
+		+accept(): void
+		#initialState(): State
+		#endOfInput(): void
+		#resetForInput(): void
+		-splitToSingleCharacterTokens(input: String): List<String>
+	}
+
+	object TokenRules {
+		+isDigit(token: String): Boolean
+		+isNonZeroDigit(token: String): Boolean
+		+isBinaryDigit(token: String): Boolean
+		+isUppercase(token: String): Boolean
+		+isSpecial(token: String): Boolean
+		+isSpace(token: String): Boolean
+	}
+
+	class IntegerDetector
+	class FloatingPointDetector
+	class BinaryOnesDetector
+	class EmailAddressDetector
+	class PasswordDetector {
+		-seenUpper: Boolean
+		-seenSpecial: Boolean
+		-lastWasSpecial: Boolean
+		-length: Int
+		+resetForInput(): void
+	}
+
+	Detector <|.. ContextDetector
+	ContextDetector o--> State : currentState
+	ContextDetector <|-- IntegerDetector
+	ContextDetector <|-- FloatingPointDetector
+	ContextDetector <|-- BinaryOnesDetector
+	ContextDetector <|-- EmailAddressDetector
+	ContextDetector <|-- PasswordDetector
+
+	IntegerDetector ..> TokenRules
+	FloatingPointDetector ..> TokenRules
+	BinaryOnesDetector ..> TokenRules
+	EmailAddressDetector ..> TokenRules
+	PasswordDetector ..> TokenRules
+
+	class "IntegerDetector.StartState" as IntegerStartState <<inner>>
+	class "IntegerDetector.DigitsState" as IntegerDigitsState <<inner>>
+	State <|.. IntegerStartState
+	State <|.. IntegerDigitsState
+	IntegerDetector *-- IntegerStartState
+	IntegerDetector *-- IntegerDigitsState
+
+	class "FloatingPointDetector.StartState" as FloatStartState <<inner>>
+	class "FloatingPointDetector.LeadingZeroState" as FloatLeadingZeroState <<inner>>
+	class "FloatingPointDetector.IntegerPartState" as FloatIntegerPartState <<inner>>
+	class "FloatingPointDetector.NeedFractionDigitState" as FloatNeedFractionState <<inner>>
+	class "FloatingPointDetector.FractionPartState" as FloatFractionPartState <<inner>>
+	State <|.. FloatStartState
+	State <|.. FloatLeadingZeroState
+	State <|.. FloatIntegerPartState
+	State <|.. FloatNeedFractionState
+	State <|.. FloatFractionPartState
+	FloatingPointDetector *-- FloatStartState
+	FloatingPointDetector *-- FloatLeadingZeroState
+	FloatingPointDetector *-- FloatIntegerPartState
+	FloatingPointDetector *-- FloatNeedFractionState
+	FloatingPointDetector *-- FloatFractionPartState
+
+	class "BinaryOnesDetector.StartState" as BinaryStartState <<inner>>
+	class "BinaryOnesDetector.LastWasOneState" as BinaryLastWasOneState <<inner>>
+	class "BinaryOnesDetector.LastWasZeroState" as BinaryLastWasZeroState <<inner>>
+	State <|.. BinaryStartState
+	State <|.. BinaryLastWasOneState
+	State <|.. BinaryLastWasZeroState
+	BinaryOnesDetector *-- BinaryStartState
+	BinaryOnesDetector *-- BinaryLastWasOneState
+	BinaryOnesDetector *-- BinaryLastWasZeroState
+
+	class "EmailAddressDetector.StartState" as EmailStartState <<inner>>
+	class "EmailAddressDetector.Part1State" as EmailPart1State <<inner>>
+	class "EmailAddressDetector.NeedPart2State" as EmailNeedPart2State <<inner>>
+	class "EmailAddressDetector.Part2State" as EmailPart2State <<inner>>
+	class "EmailAddressDetector.NeedPart3State" as EmailNeedPart3State <<inner>>
+	class "EmailAddressDetector.Part3State" as EmailPart3State <<inner>>
+	State <|.. EmailStartState
+	State <|.. EmailPart1State
+	State <|.. EmailNeedPart2State
+	State <|.. EmailPart2State
+	State <|.. EmailNeedPart3State
+	State <|.. EmailPart3State
+	EmailAddressDetector *-- EmailStartState
+	EmailAddressDetector *-- EmailPart1State
+	EmailAddressDetector *-- EmailNeedPart2State
+	EmailAddressDetector *-- EmailPart2State
+	EmailAddressDetector *-- EmailNeedPart3State
+	EmailAddressDetector *-- EmailPart3State
+
+	class "PasswordDetector.ScanState" as PasswordScanState <<inner>>
+	State <|.. PasswordScanState
+	PasswordDetector *-- PasswordScanState
 }
-
-abstract class ContextDetector {
-	-tokens: List<String>
-	-index: Int
-	-currentState: State
-	-accepted: Boolean
-	+detect(input: String): Boolean
-	+nextToken(): String?
-	+transitionTo(state: State): void
-	+reject(): void
-	+accept(): void
-	#initialState(): State
-	#endOfInput(): void
-}
-
-interface State {
-	+handle(context: ContextDetector, token: String): void
-	+onEnd(context: ContextDetector): void
-}
-
-Detector <|.. ContextDetector
-ContextDetector o--> State : currentState
-
-class IntegerDetector
-class FloatingPointDetector {
-	-seenDot: Boolean
-}
-class BinaryOnesDetector {
-	-lastWasOne: Boolean
-}
-class EmailAddressDetector {
-	-seenAt: Boolean
-	-seenRightDot: Boolean
-	-hasPart1: Boolean
-	-hasPart2: Boolean
-	-hasPart3: Boolean
-}
-class PasswordDetector {
-	-seenUpper: Boolean
-	-seenSpecial: Boolean
-	-lastWasSpecial: Boolean
-	+isSpecial(token: String): Boolean
-}
-
-ContextDetector <|-- IntegerDetector
-ContextDetector <|-- FloatingPointDetector
-ContextDetector <|-- BinaryOnesDetector
-ContextDetector <|-- EmailAddressDetector
-ContextDetector <|-- PasswordDetector
-
-abstract class IntegerState
-class IntegerStartState
-class IntegerDigitsState
-class IntegerRejectState
-State <|.. IntegerState
-IntegerState <|-- IntegerStartState
-IntegerState <|-- IntegerDigitsState
-IntegerState <|-- IntegerRejectState
-
-abstract class FloatingPointState
-class FloatStartState
-class FloatLeadingZeroState
-class FloatIntegerPartState
-class FloatDotNeedsDigitState
-class FloatFractionPartState
-class FloatRejectState
-State <|.. FloatingPointState
-FloatingPointState <|-- FloatStartState
-FloatingPointState <|-- FloatLeadingZeroState
-FloatingPointState <|-- FloatIntegerPartState
-FloatingPointState <|-- FloatDotNeedsDigitState
-FloatingPointState <|-- FloatFractionPartState
-FloatingPointState <|-- FloatRejectState
-
-abstract class BinaryState
-class BinaryStartState
-class BinaryLastWasOneState
-class BinaryLastWasZeroState
-class BinaryRejectState
-State <|.. BinaryState
-BinaryState <|-- BinaryStartState
-BinaryState <|-- BinaryLastWasOneState
-BinaryState <|-- BinaryLastWasZeroState
-BinaryState <|-- BinaryRejectState
-
-abstract class EmailState
-class EmailStartState
-class EmailPart1State
-class EmailPart2State
-class EmailPart3State
-class EmailAfterAtState
-class EmailAfterDotState
-class EmailRejectState
-State <|.. EmailState
-EmailState <|-- EmailStartState
-EmailState <|-- EmailPart1State
-EmailState <|-- EmailPart2State
-EmailState <|-- EmailPart3State
-EmailState <|-- EmailAfterAtState
-EmailState <|-- EmailAfterDotState
-EmailState <|-- EmailRejectState
-
-abstract class PasswordState
-class PasswordScanState
-class PasswordRejectState
-State <|.. PasswordState
-PasswordState <|-- PasswordScanState
-PasswordState <|-- PasswordRejectState
 
 note bottom of ContextDetector
 Input is split into one-character String tokens.
