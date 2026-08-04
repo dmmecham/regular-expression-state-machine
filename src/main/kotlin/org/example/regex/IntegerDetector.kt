@@ -6,10 +6,16 @@ class IntegerDetector : ContextDetector() {
 
     override fun initialState(): State = startState
 
-    private inner class StartState : State {
+    private fun transitionTo(state: IntegerState) {
+        super.transitionTo(state)
+    }
+
+    private abstract inner class IntegerState : State
+
+    private inner class StartState : IntegerState() {
         override fun handle(context: ContextDetector, token: String) {
             when {
-                TokenRules.isNonZeroDigit(token) -> context.transitionTo(digitsState)
+                TokenRules.isNonZeroDigit(token) -> transitionTo(digitsState)
                 else -> context.reject()
             }
         }
@@ -19,7 +25,7 @@ class IntegerDetector : ContextDetector() {
         }
     }
 
-    private inner class DigitsState : State {
+    private inner class DigitsState : IntegerState() {
         override fun handle(context: ContextDetector, token: String) {
             if (!TokenRules.isDigit(token)) {
                 context.reject()

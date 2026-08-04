@@ -10,6 +10,8 @@ class PasswordDetector : ContextDetector() {
 
     override fun initialState(): State = scanState
 
+    private abstract inner class PasswordState : State
+
     override fun resetForInput() {
         seenUpper = false
         seenSpecial = false
@@ -17,7 +19,7 @@ class PasswordDetector : ContextDetector() {
         length = 0
     }
 
-    private inner class ScanState : State {
+    private inner class ScanState : PasswordState() {
         override fun handle(context: ContextDetector, token: String) {
             length += 1
 

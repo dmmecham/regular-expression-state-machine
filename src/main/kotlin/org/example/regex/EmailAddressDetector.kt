@@ -10,6 +10,12 @@ class EmailAddressDetector : ContextDetector() {
 
     override fun initialState(): State = startState
 
+    private fun transitionTo(state: EmailAddressState) {
+        super.transitionTo(state)
+    }
+
+    private abstract inner class EmailAddressState : State
+
     private fun isPart1Char(token: String): Boolean {
         return token != "@" && !TokenRules.isSpace(token)
     }
@@ -18,10 +24,10 @@ class EmailAddressDetector : ContextDetector() {
         return token != "@" && token != "." && !TokenRules.isSpace(token)
     }
 
-    private inner class StartState : State {
+    private inner class StartState : EmailAddressState() {
         override fun handle(context: ContextDetector, token: String) {
             if (isPart1Char(token)) {
-                context.transitionTo(part1State)
+                transitionTo(part1State)
             } else {
                 context.reject()
             }
@@ -32,10 +38,10 @@ class EmailAddressDetector : ContextDetector() {
         }
     }
 
-    private inner class Part1State : State {
+    private inner class Part1State : EmailAddressState() {
         override fun handle(context: ContextDetector, token: String) {
             when {
-                token == "@" -> context.transitionTo(needPart2State)
+                token == "@" -> transitionTo(needPart2State)
                 isPart1Char(token) -> Unit
                 else -> context.reject()
             }
@@ -46,10 +52,10 @@ class EmailAddressDetector : ContextDetector() {
         }
     }
 
-    private inner class NeedPart2State : State {
+    private inner class NeedPart2State : EmailAddressState() {
         override fun handle(context: ContextDetector, token: String) {
             if (isPart2Or3Char(token)) {
-                context.transitionTo(part2State)
+                transitionTo(part2State)
             } else {
                 context.reject()
             }
@@ -60,10 +66,10 @@ class EmailAddressDetector : ContextDetector() {
         }
     }
 
-    private inner class Part2State : State {
+    private inner class Part2State : EmailAddressState() {
         override fun handle(context: ContextDetector, token: String) {
             when {
-                token == "." -> context.transitionTo(needPart3State)
+                token == "." -> transitionTo(needPart3State)
                 isPart2Or3Char(token) -> Unit
                 else -> context.reject()
             }
@@ -74,10 +80,10 @@ class EmailAddressDetector : ContextDetector() {
         }
     }
 
-    private inner class NeedPart3State : State {
+    private inner class NeedPart3State : EmailAddressState() {
         override fun handle(context: ContextDetector, token: String) {
             if (isPart2Or3Char(token)) {
-                context.transitionTo(part3State)
+                transitionTo(part3State)
             } else {
                 context.reject()
             }
@@ -88,7 +94,7 @@ class EmailAddressDetector : ContextDetector() {
         }
     }
 
-    private inner class Part3State : State {
+    private inner class Part3State : EmailAddressState() {
         override fun handle(context: ContextDetector, token: String) {
             if (!isPart2Or3Char(token)) {
                 context.reject()

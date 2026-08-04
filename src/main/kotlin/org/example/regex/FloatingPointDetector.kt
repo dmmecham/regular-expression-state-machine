@@ -9,12 +9,18 @@ class FloatingPointDetector : ContextDetector() {
 
     override fun initialState(): State = startState
 
-    private inner class StartState : State {
+    private fun transitionTo(state: FloatingPointState) {
+        super.transitionTo(state)
+    }
+
+    private abstract inner class FloatingPointState : State
+
+    private inner class StartState : FloatingPointState() {
         override fun handle(context: ContextDetector, token: String) {
             when {
-                token == "0" -> context.transitionTo(leadingZeroState)
-                TokenRules.isNonZeroDigit(token) -> context.transitionTo(integerPartState)
-                token == "." -> context.transitionTo(needFractionDigitState)
+                token == "0" -> transitionTo(leadingZeroState)
+                TokenRules.isNonZeroDigit(token) -> transitionTo(integerPartState)
+                token == "." -> transitionTo(needFractionDigitState)
                 else -> context.reject()
             }
         }
@@ -24,10 +30,10 @@ class FloatingPointDetector : ContextDetector() {
         }
     }
 
-    private inner class LeadingZeroState : State {
+    private inner class LeadingZeroState : FloatingPointState() {
         override fun handle(context: ContextDetector, token: String) {
             if (token == ".") {
-                context.transitionTo(needFractionDigitState)
+                transitionTo(needFractionDigitState)
             } else {
                 context.reject()
             }
@@ -38,11 +44,11 @@ class FloatingPointDetector : ContextDetector() {
         }
     }
 
-    private inner class IntegerPartState : State {
+    private inner class IntegerPartState : FloatingPointState() {
         override fun handle(context: ContextDetector, token: String) {
             when {
                 TokenRules.isDigit(token) -> Unit
-                token == "." -> context.transitionTo(needFractionDigitState)
+                token == "." -> transitionTo(needFractionDigitState)
                 else -> context.reject()
             }
         }
@@ -52,10 +58,10 @@ class FloatingPointDetector : ContextDetector() {
         }
     }
 
-    private inner class NeedFractionDigitState : State {
+    private inner class NeedFractionDigitState : FloatingPointState() {
         override fun handle(context: ContextDetector, token: String) {
             if (TokenRules.isDigit(token)) {
-                context.transitionTo(fractionPartState)
+                transitionTo(fractionPartState)
             } else {
                 context.reject()
             }
@@ -66,7 +72,7 @@ class FloatingPointDetector : ContextDetector() {
         }
     }
 
-    private inner class FractionPartState : State {
+    private inner class FractionPartState : FloatingPointState() {
         override fun handle(context: ContextDetector, token: String) {
             if (!TokenRules.isDigit(token)) {
                 context.reject()

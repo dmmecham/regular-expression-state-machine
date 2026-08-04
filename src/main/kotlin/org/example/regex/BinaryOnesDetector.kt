@@ -7,10 +7,16 @@ class BinaryOnesDetector : ContextDetector() {
 
     override fun initialState(): State = startState
 
-    private inner class StartState : State {
+    private fun transitionTo(state: BinaryOnesState) {
+        super.transitionTo(state)
+    }
+
+    private abstract inner class BinaryOnesState : State
+
+    private inner class StartState : BinaryOnesState() {
         override fun handle(context: ContextDetector, token: String) {
             when (token) {
-                "1" -> context.transitionTo(lastWasOneState)
+                "1" -> transitionTo(lastWasOneState)
                 else -> context.reject()
             }
         }
@@ -20,11 +26,11 @@ class BinaryOnesDetector : ContextDetector() {
         }
     }
 
-    private inner class LastWasOneState : State {
+    private inner class LastWasOneState : BinaryOnesState() {
         override fun handle(context: ContextDetector, token: String) {
             when (token) {
                 "1" -> Unit
-                "0" -> context.transitionTo(lastWasZeroState)
+                "0" -> transitionTo(lastWasZeroState)
                 else -> context.reject()
             }
         }
@@ -34,11 +40,11 @@ class BinaryOnesDetector : ContextDetector() {
         }
     }
 
-    private inner class LastWasZeroState : State {
+    private inner class LastWasZeroState : BinaryOnesState() {
         override fun handle(context: ContextDetector, token: String) {
             when (token) {
                 "0" -> Unit
-                "1" -> context.transitionTo(lastWasOneState)
+                "1" -> transitionTo(lastWasOneState)
                 else -> context.reject()
             }
         }
