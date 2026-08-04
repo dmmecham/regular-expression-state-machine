@@ -1,0 +1,32 @@
+@startuml BinaryOnes
+!include Context.puml
+!include State.puml
+
+class BinaryOnesContext {
+
+}
+
+class CheckFirstDigitBinaryOnesState {
+
+}
+
+class CheckEndDigitBinaryOnesState {
+
+}
+
+class ValidBinaryOnesState {
+
+}
+
+class InvalidBinaryOnesState {
+
+}
+
+Context <|-- BinaryOnesContext
+
+State <|-- CheckFirstDigitBinaryOnesState
+State <|-- CheckEndDigitBinaryOnesState
+State <|-- ValidBinaryOnesState
+State <|-- InvalidBinaryOnesState
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml Integer
+!include Context.puml
+!include State.puml
+
+class IntegerContext {
+
+}
+
+class CheckFirstDigitIntegerState {
+
+}
+
+class ValidIntegerState {
+
+}
+
+class InvalidIntegerState {
+
+}
+
+Context <|-- IntegerContext
+
+State <|-- CheckFirstDigitIntegerState
+State <|-- ValidIntegerState
+State <|-- InvalidIntegerState
+
+@enduml

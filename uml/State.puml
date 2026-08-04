@@ -1,0 +1,7 @@
+@startuml State
+
+abstract class State {
+  abstract validate(string c): boolean
+}
+
+@enduml

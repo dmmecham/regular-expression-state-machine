@@ -1,0 +1,41 @@
+@startuml EmailAddress
+!include Context.puml
+!include State.puml
+
+class EmailAddressContext {
+  +hasAtSymbol(): boolean
+  +hasPart1(): boolean
+  +hasPart2(): boolean
+  +hasPart3(): boolean
+  +hasRightSideDot(): boolean
+}
+
+class CheckPart1EmailAddressState {
+
+}
+
+class CheckPart2EmailAddressState {
+
+}
+
+class CheckPart3EmailAddressState {
+
+}
+
+class ValidEmailAddressState {
+
+}
+
+class InvalidEmailAddressState {
+
+}
+
+Context <|-- EmailAddressContext
+
+State <|-- CheckPart1EmailAddressState
+State <|-- CheckPart2EmailAddressState
+State <|-- CheckPart3EmailAddressState
+State <|-- ValidEmailAddressState
+State <|-- InvalidEmailAddressState
+
+@enduml

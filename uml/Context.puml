@@ -1,0 +1,11 @@
+@startuml Context
+
+!include State.puml
+
+abstract class Context {
+  getNextCharacter(): string
+  #input: string
+  - currentState: State
+}
+
+@enduml

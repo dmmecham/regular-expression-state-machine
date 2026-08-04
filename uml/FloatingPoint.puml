@@ -1,0 +1,26 @@
+@startuml FloatingPoint
+!include Context.puml
+!include State.puml
+
+class FloatingPointContext {
+  +hasDecimalPoint(): boolean
+}
+
+class CheckFirstDigitFloatingPointState {
+
+}
+
+class ValidFloatingPointState {
+
+}
+
+class InvalidFloatingPointState {
+
+} 
+
+Context <|-- FloatingPointContext
+
+State <|-- CheckFirstDigitFloatingPointState
+State <|-- ValidFloatingPointState
+State <|-- InvalidFloatingPointState
+

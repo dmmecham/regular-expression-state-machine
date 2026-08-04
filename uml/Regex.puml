@@ -1,0 +1,9 @@
+@startuml Regex
+
+!include Integer.puml
+!include FloatingPoint.puml
+!include BinaryOnes.puml
+!include EmailAddress.puml
+!include Password.puml
+
+@enduml
