@@ -1,26 +1,42 @@
-@startuml FloatingPoint
-!include Context.puml
-!include State.puml
+@startuml FloatingPointStateMachine
+title Floating Point Detector State Diagram
 
-class FloatingPointContext {
-  +hasDecimalPoint(): boolean
-}
+state "Read First Character" as Start
+state "Saw Leading 0" as LeadingZero
+state "Integer Part (Before .)" as IntPart
+state "Saw . (Need Digit)" as NeedFrac
+state "Fraction Part (After .)" as FracPart
+state "Accept" as Accept
+state "Reject" as Reject
 
-class CheckFirstDigitFloatingPointState {
+[*] --> Start
 
-}
+Start --> LeadingZero : [0]
+Start --> IntPart : [1-9]
+Start --> NeedFrac : [.]
+Start --> Reject : [other]
+Start --> Reject : [end]
 
-class ValidFloatingPointState {
+LeadingZero --> NeedFrac : [.]
+LeadingZero --> Reject : [other]
+LeadingZero --> Reject : [end]
 
-}
+IntPart --> IntPart : [0-9]
+IntPart --> NeedFrac : [.]
+IntPart --> Reject : [other]
+IntPart --> Reject : [end]
 
-class InvalidFloatingPointState {
+NeedFrac --> FracPart : [0-9]
+NeedFrac --> Reject : [.]
+NeedFrac --> Reject : [other]
+NeedFrac --> Reject : [end]
 
-} 
+FracPart --> FracPart : [0-9]
+FracPart --> Reject : [.]
+FracPart --> Reject : [other]
+FracPart --> Accept : [end]
 
-Context <|-- FloatingPointContext
-
-State <|-- CheckFirstDigitFloatingPointState
-State <|-- ValidFloatingPointState
-State <|-- InvalidFloatingPointState
+Accept --> [*]
+Reject --> [*]
+@enduml
 

@@ -1,32 +1,29 @@
-@startuml BinaryOnes
-!include Context.puml
-!include State.puml
+@startuml BinaryOnesStateMachine
+title Binary (Starts and Ends With 1) State Diagram
 
-class BinaryOnesContext {
+state "Read First Character" as Start
+state "Last Character Was 1" as LastOne
+state "Last Character Was 0" as LastZero
+state "Accept" as Accept
+state "Reject" as Reject
 
-}
+[*] --> Start
 
-class CheckFirstDigitBinaryOnesState {
+Start --> LastOne : [1]
+Start --> Reject : [0]
+Start --> Reject : [other]
+Start --> Reject : [end]
 
-}
+LastOne --> LastOne : [1]
+LastOne --> LastZero : [0]
+LastOne --> Reject : [other]
+LastOne --> Accept : [end]
 
-class CheckEndDigitBinaryOnesState {
+LastZero --> LastOne : [1]
+LastZero --> LastZero : [0]
+LastZero --> Reject : [other]
+LastZero --> Reject : [end]
 
-}
-
-class ValidBinaryOnesState {
-
-}
-
-class InvalidBinaryOnesState {
-
-}
-
-Context <|-- BinaryOnesContext
-
-State <|-- CheckFirstDigitBinaryOnesState
-State <|-- CheckEndDigitBinaryOnesState
-State <|-- ValidBinaryOnesState
-State <|-- InvalidBinaryOnesState
-
+Accept --> [*]
+Reject --> [*]
 @enduml

@@ -1,41 +1,50 @@
-@startuml EmailAddress
-!include Context.puml
-!include State.puml
+@startuml EmailAddressStateMachine
+title Email Detector State Diagram
 
-class EmailAddressContext {
-  +hasAtSymbol(): boolean
-  +hasPart1(): boolean
-  +hasPart2(): boolean
-  +hasPart3(): boolean
-  +hasRightSideDot(): boolean
-}
+state "Need Part 1 Char" as Start
+state "Read Part 1" as Part1
+state "Need Part 2 Char" as NeedPart2
+state "Read Part 2" as Part2
+state "Need Part 3 Char" as NeedPart3
+state "Read Part 3" as Part3
+state "Accept" as Accept
+state "Reject" as Reject
 
-class CheckPart1EmailAddressState {
+[*] --> Start
 
-}
+Start --> Part1 : [any except space,@]
+Start --> Reject : [space]
+Start --> Reject : [@]
+Start --> Reject : [end]
 
-class CheckPart2EmailAddressState {
+Part1 --> Part1 : [any except space,@]
+Part1 --> NeedPart2 : [@]
+Part1 --> Reject : [space]
 
-}
+NeedPart2 --> Part2 : [any except space,@,.]
+NeedPart2 --> Reject : [space]
+NeedPart2 --> Reject : [@]
+NeedPart2 --> Reject : [.]
+NeedPart2 --> Reject : [end]
 
-class CheckPart3EmailAddressState {
+Part2 --> Part2 : [any except space,@,.]
+Part2 --> NeedPart3 : [.]
+Part2 --> Reject : [space]
+Part2 --> Reject : [@]
+Part2 --> Reject : [end]
 
-}
+NeedPart3 --> Part3 : [any except space,@,.]
+NeedPart3 --> Reject : [space]
+NeedPart3 --> Reject : [@]
+NeedPart3 --> Reject : [.]
+NeedPart3 --> Reject : [end]
 
-class ValidEmailAddressState {
+Part3 --> Part3 : [any except space,@,.]
+Part3 --> Reject : [space]
+Part3 --> Reject : [@]
+Part3 --> Reject : [.]
+Part3 --> Accept : [end]
 
-}
-
-class InvalidEmailAddressState {
-
-}
-
-Context <|-- EmailAddressContext
-
-State <|-- CheckPart1EmailAddressState
-State <|-- CheckPart2EmailAddressState
-State <|-- CheckPart3EmailAddressState
-State <|-- ValidEmailAddressState
-State <|-- InvalidEmailAddressState
-
+Accept --> [*]
+Reject --> [*]
 @enduml

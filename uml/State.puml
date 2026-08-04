@@ -1,7 +1,8 @@
 @startuml State
 
-abstract class State {
-  abstract validate(string c): boolean
+interface State {
+  +handle(context: ContextDetector, token: String): void
+  +onEnd(context: ContextDetector): void
 }
 
 @enduml

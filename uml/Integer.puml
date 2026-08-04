@@ -1,27 +1,22 @@
-@startuml Integer
-!include Context.puml
-!include State.puml
+@startuml IntegerStateMachine
+title Integer Detector State Diagram
 
-class IntegerContext {
+state "Read First Character" as Start
+state "Read Remaining Digits" as Digits
+state "Accept" as Accept
+state "Reject" as Reject
 
-}
+[*] --> Start
 
-class CheckFirstDigitIntegerState {
+Start --> Digits : [1-9]
+Start --> Reject : [0]
+Start --> Reject : [non-digit]
+Start --> Reject : [end]
 
-}
+Digits --> Digits : [0-9]
+Digits --> Reject : [non-digit]
+Digits --> Accept : [end]
 
-class ValidIntegerState {
-
-}
-
-class InvalidIntegerState {
-
-}
-
-Context <|-- IntegerContext
-
-State <|-- CheckFirstDigitIntegerState
-State <|-- ValidIntegerState
-State <|-- InvalidIntegerState
-
+Accept --> [*]
+Reject --> [*]
 @enduml

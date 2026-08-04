@@ -1,9 +1,124 @@
-@startuml Regex
+@startuml RegexProgram
+title Regex Detector Program UML (State Pattern)
 
-!include Integer.puml
-!include FloatingPoint.puml
-!include BinaryOnes.puml
-!include EmailAddress.puml
-!include Password.puml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+interface Detector {
+	+detect(input: String): Boolean
+}
+
+abstract class ContextDetector {
+	-tokens: List<String>
+	-index: Int
+	-currentState: State
+	-accepted: Boolean
+	+detect(input: String): Boolean
+	+nextToken(): String?
+	+transitionTo(state: State): void
+	+reject(): void
+	+accept(): void
+	#initialState(): State
+	#endOfInput(): void
+}
+
+interface State {
+	+handle(context: ContextDetector, token: String): void
+	+onEnd(context: ContextDetector): void
+}
+
+Detector <|.. ContextDetector
+ContextDetector o--> State : currentState
+
+class IntegerDetector
+class FloatingPointDetector {
+	-seenDot: Boolean
+}
+class BinaryOnesDetector {
+	-lastWasOne: Boolean
+}
+class EmailAddressDetector {
+	-seenAt: Boolean
+	-seenRightDot: Boolean
+	-hasPart1: Boolean
+	-hasPart2: Boolean
+	-hasPart3: Boolean
+}
+class PasswordDetector {
+	-seenUpper: Boolean
+	-seenSpecial: Boolean
+	-lastWasSpecial: Boolean
+	+isSpecial(token: String): Boolean
+}
+
+ContextDetector <|-- IntegerDetector
+ContextDetector <|-- FloatingPointDetector
+ContextDetector <|-- BinaryOnesDetector
+ContextDetector <|-- EmailAddressDetector
+ContextDetector <|-- PasswordDetector
+
+abstract class IntegerState
+class IntegerStartState
+class IntegerDigitsState
+class IntegerRejectState
+State <|.. IntegerState
+IntegerState <|-- IntegerStartState
+IntegerState <|-- IntegerDigitsState
+IntegerState <|-- IntegerRejectState
+
+abstract class FloatingPointState
+class FloatStartState
+class FloatLeadingZeroState
+class FloatIntegerPartState
+class FloatDotNeedsDigitState
+class FloatFractionPartState
+class FloatRejectState
+State <|.. FloatingPointState
+FloatingPointState <|-- FloatStartState
+FloatingPointState <|-- FloatLeadingZeroState
+FloatingPointState <|-- FloatIntegerPartState
+FloatingPointState <|-- FloatDotNeedsDigitState
+FloatingPointState <|-- FloatFractionPartState
+FloatingPointState <|-- FloatRejectState
+
+abstract class BinaryState
+class BinaryStartState
+class BinaryLastWasOneState
+class BinaryLastWasZeroState
+class BinaryRejectState
+State <|.. BinaryState
+BinaryState <|-- BinaryStartState
+BinaryState <|-- BinaryLastWasOneState
+BinaryState <|-- BinaryLastWasZeroState
+BinaryState <|-- BinaryRejectState
+
+abstract class EmailState
+class EmailStartState
+class EmailPart1State
+class EmailPart2State
+class EmailPart3State
+class EmailAfterAtState
+class EmailAfterDotState
+class EmailRejectState
+State <|.. EmailState
+EmailState <|-- EmailStartState
+EmailState <|-- EmailPart1State
+EmailState <|-- EmailPart2State
+EmailState <|-- EmailPart3State
+EmailState <|-- EmailAfterAtState
+EmailState <|-- EmailAfterDotState
+EmailState <|-- EmailRejectState
+
+abstract class PasswordState
+class PasswordScanState
+class PasswordRejectState
+State <|.. PasswordState
+PasswordState <|-- PasswordScanState
+PasswordState <|-- PasswordRejectState
+
+note bottom of ContextDetector
+Input is split into one-character String tokens.
+Each state handles one token at a time.
+end note
 
 @enduml

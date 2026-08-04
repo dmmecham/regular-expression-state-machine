@@ -2,10 +2,18 @@
 
 !include State.puml
 
-abstract class Context {
-  getNextCharacter(): string
-  #input: string
-  - currentState: State
+abstract class ContextDetector {
+  +detect(input: String): Boolean
+  +nextToken(): String?
+  +transitionTo(state: State): void
+  +accept(): void
+  +reject(): void
+  #initialState(): State
+  #endOfInput(): void
+  -tokens: List<String>
+  -index: Int
+  -currentState: State
+  -accepted: Boolean
 }
 
 @enduml
