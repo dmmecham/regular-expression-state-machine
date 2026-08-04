@@ -8,7 +8,7 @@ class EmailAddressDetector : ContextDetector() {
     private val needPart3State = NeedPart3State()
     private val part3State = Part3State()
 
-    override fun initialState(): State = startState
+    override fun createInitialState(): State = startState
 
     private fun transitionTo(state: EmailAddressState) {
         super.transitionTo(state)

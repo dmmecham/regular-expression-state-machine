@@ -5,7 +5,7 @@ class BinaryOnesDetector : ContextDetector() {
     private val lastWasOneState = LastWasOneState()
     private val lastWasZeroState = LastWasZeroState()
 
-    override fun initialState(): State = startState
+    override fun createInitialState(): State = startState
 
     private fun transitionTo(state: BinaryOnesState) {
         super.transitionTo(state)

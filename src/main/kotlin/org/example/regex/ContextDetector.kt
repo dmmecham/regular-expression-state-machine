@@ -6,22 +6,38 @@ abstract class ContextDetector : Detector {
     private var terminal: Boolean = false
 
     private var accepted: Boolean = false
-    protected var currentState: State = initialState()
+    protected var currentState: State = createInitialState()
 
-    protected abstract fun initialState(): State
+    protected abstract fun createInitialState(): State
 
-    protected open fun endOfInput() {
+    protected open fun beforeDetection() {
+    }
+
+    protected open fun afterInputConsumed() {
         currentState.onEnd(this)
     }
 
     override fun detect(input: String): Boolean {
+        prepareDetection(input)
+        runDetectionLoop()
+
+        if (!terminal) {
+            afterInputConsumed()
+        }
+
+        return terminal && accepted
+    }
+
+    private fun prepareDetection(input: String) {
         tokens = splitToSingleCharacterTokens(input)
         index = 0
         terminal = false
         accepted = false
-        currentState = initialState()
-        resetForInput()
+        currentState = createInitialState()
+        beforeDetection()
+    }
 
+    private fun runDetectionLoop() {
         while (!terminal) {
             val token = nextToken()
             if (token == null) {
@@ -29,12 +45,6 @@ abstract class ContextDetector : Detector {
             }
             currentState.handle(this, token)
         }
-
-        if (!terminal) {
-            endOfInput()
-        }
-
-        return terminal && accepted
     }
 
     fun nextToken(): String? {
@@ -59,10 +69,6 @@ abstract class ContextDetector : Detector {
     fun accept() {
         accepted = true
         terminal = true
-    }
-
-    protected open fun resetForInput() {
-        // Hook for detectors that track additional flags.
     }
 
     private fun splitToSingleCharacterTokens(input: String): List<String> {

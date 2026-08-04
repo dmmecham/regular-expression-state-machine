@@ -25,9 +25,9 @@ package "state.regex" {
 		+transitionTo(state: State): void
 		+reject(): void
 		+accept(): void
-		#initialState(): State
-		#endOfInput(): void
-		#resetForInput(): void
+		#createInitialState(): State
+		#beforeDetection(): void
+		#afterInputConsumed(): void
 		-splitToSingleCharacterTokens(input: String): List<String>
 	}
 
@@ -45,11 +45,7 @@ package "state.regex" {
 	class BinaryOnesDetector
 	class EmailAddressDetector
 	class PasswordDetector {
-		-seenUpper: Boolean
-		-seenSpecial: Boolean
-		-lastWasSpecial: Boolean
-		-length: Int
-		+resetForInput(): void
+		#createInitialState(): State
 	}
 
 	Detector <|.. ContextDetector
@@ -130,17 +126,25 @@ package "state.regex" {
 	EmailAddressDetector *-- EmailPart3State
 	EmailAddressDetector *-- EmailAddressStateBase
 
-	class "PasswordDetector.ScanState" as PasswordScanState <<inner>>
+	class "PasswordDetector.CollectingState" as PasswordCollectingState <<inner>>
+	class "PasswordDetector.ValidatingState" as PasswordValidatingState <<inner>>
 	abstract class "PasswordDetector.PasswordState" as PasswordStateBase <<inner>>
 	State <|.. PasswordStateBase
-	PasswordStateBase <|-- PasswordScanState
-	PasswordDetector *-- PasswordScanState
+	PasswordStateBase <|-- PasswordCollectingState
+	PasswordStateBase <|-- PasswordValidatingState
+	PasswordDetector *-- PasswordCollectingState
+	PasswordDetector *-- PasswordValidatingState
 	PasswordDetector *-- PasswordStateBase
 }
 
 note bottom of ContextDetector
 Input is split into one-character String tokens.
 Each state handles one token at a time.
+end note
+
+note right of ContextDetector
+detect(input) is the template method.
+createInitialState(), beforeDetection(), and afterInputConsumed() are the hooks.
 end note
 
 @enduml

@@ -4,7 +4,7 @@ class IntegerDetector : ContextDetector() {
     private val startState = StartState()
     private val digitsState = DigitsState()
 
-    override fun initialState(): State = startState
+    override fun createInitialState(): State = startState
 
     private fun transitionTo(state: IntegerState) {
         super.transitionTo(state)

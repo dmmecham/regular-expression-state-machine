@@ -1,47 +1,101 @@
 package state.regex
 
 class PasswordDetector : ContextDetector() {
-    private val scanState = ScanState()
-
-    private var seenUpper = false
-    private var seenSpecial = false
-    private var lastWasSpecial = false
-    private var length = 0
-
-    override fun initialState(): State = scanState
-
-    private abstract inner class PasswordState : State
-
-    override fun resetForInput() {
-        seenUpper = false
-        seenSpecial = false
-        lastWasSpecial = false
-        length = 0
+    private companion object {
+        const val minimumLength = 8
     }
 
-    private inner class ScanState : PasswordState() {
+    override fun createInitialState(): State = CollectingState(0, false, false, false)
+
+    private fun transitionTo(state: PasswordState) {
+        super.transitionTo(state)
+    }
+
+    private abstract inner class PasswordState(
+        private val length: Int,
+        private val seenUpper: Boolean,
+        private val seenSpecial: Boolean,
+        private val lastWasSpecial: Boolean,
+    ) : State {
+        protected fun advance(token: String) {
+            val tokenIsUppercase = TokenRules.isUppercase(token)
+            val tokenIsSpecial = TokenRules.isSpecial(token)
+
+            transitionTo(
+                nextState(
+                    length = length + 1,
+                    seenUpper = seenUpper || tokenIsUppercase,
+                    seenSpecial = seenSpecial || tokenIsSpecial,
+                    lastWasSpecial = tokenIsSpecial,
+                )
+            )
+        }
+
+        protected fun isComplexEnough(): Boolean {
+            return length >= minimumLength && seenUpper && seenSpecial && !lastWasSpecial
+        }
+
+        protected abstract fun nextState(
+            length: Int,
+            seenUpper: Boolean,
+            seenSpecial: Boolean,
+            lastWasSpecial: Boolean,
+        ): PasswordState
+    }
+
+    private inner class CollectingState(
+        length: Int,
+        seenUpper: Boolean,
+        seenSpecial: Boolean,
+        lastWasSpecial: Boolean,
+    ) : PasswordState(length, seenUpper, seenSpecial, lastWasSpecial) {
         override fun handle(context: ContextDetector, token: String) {
-            length += 1
-
-            if (TokenRules.isUppercase(token)) {
-                seenUpper = true
-            }
-
-            if (TokenRules.isSpecial(token)) {
-                seenSpecial = true
-                lastWasSpecial = true
-            } else {
-                lastWasSpecial = false
-            }
+            advance(token)
         }
 
         override fun onEnd(context: ContextDetector) {
-            val valid = length >= 8 && seenUpper && seenSpecial && !lastWasSpecial
-            if (valid) {
+            context.reject()
+        }
+
+        override fun nextState(
+            length: Int,
+            seenUpper: Boolean,
+            seenSpecial: Boolean,
+            lastWasSpecial: Boolean,
+        ): PasswordState {
+            return if (length >= minimumLength) {
+                ValidatingState(length, seenUpper, seenSpecial, lastWasSpecial)
+            } else {
+                CollectingState(length, seenUpper, seenSpecial, lastWasSpecial)
+            }
+        }
+    }
+
+    private inner class ValidatingState(
+        length: Int,
+        seenUpper: Boolean,
+        seenSpecial: Boolean,
+        lastWasSpecial: Boolean,
+    ) : PasswordState(length, seenUpper, seenSpecial, lastWasSpecial) {
+        override fun handle(context: ContextDetector, token: String) {
+            advance(token)
+        }
+
+        override fun onEnd(context: ContextDetector) {
+            if (isComplexEnough()) {
                 context.accept()
             } else {
                 context.reject()
             }
+        }
+
+        override fun nextState(
+            length: Int,
+            seenUpper: Boolean,
+            seenSpecial: Boolean,
+            lastWasSpecial: Boolean,
+        ): PasswordState {
+            return ValidatingState(length, seenUpper, seenSpecial, lastWasSpecial)
         }
     }
 }

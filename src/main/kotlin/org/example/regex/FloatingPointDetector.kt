@@ -7,7 +7,7 @@ class FloatingPointDetector : ContextDetector() {
     private val needFractionDigitState = NeedFractionDigitState()
     private val fractionPartState = FractionPartState()
 
-    override fun initialState(): State = startState
+    override fun createInitialState(): State = startState
 
     private fun transitionTo(state: FloatingPointState) {
         super.transitionTo(state)
