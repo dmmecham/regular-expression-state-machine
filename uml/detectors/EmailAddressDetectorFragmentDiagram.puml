@@ -1,0 +1,6 @@
+@startuml EmailAddressDetectorFragmentDiagram
+title EmailAddress Detector Fragment Diagram
+
+!include EmailAddressDetectorFragment.puml
+
+@enduml

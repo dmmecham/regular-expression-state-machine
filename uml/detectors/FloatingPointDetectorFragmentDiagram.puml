@@ -1,0 +1,6 @@
+@startuml FloatingPointDetectorFragmentDiagram
+title FloatingPoint Detector Fragment Diagram
+
+!include FloatingPointDetectorFragment.puml
+
+@enduml

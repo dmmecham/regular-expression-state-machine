@@ -1,0 +1,6 @@
+@startuml BinaryOnesDetectorFragmentDiagram
+title BinaryOnes Detector Fragment Diagram
+
+!include BinaryOnesDetectorFragment.puml
+
+@enduml

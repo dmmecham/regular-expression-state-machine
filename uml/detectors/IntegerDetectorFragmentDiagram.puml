@@ -1,0 +1,6 @@
+@startuml IntegerDetectorFragmentDiagram
+title Integer Detector Fragment Diagram
+
+!include IntegerDetectorFragment.puml
+
+@enduml
