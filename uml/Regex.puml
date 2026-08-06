@@ -34,7 +34,6 @@ package "state.regex" {
 	object TokenRules {
 		+isDigit(token: String): Boolean
 		+isNonZeroDigit(token: String): Boolean
-		+isBinaryDigit(token: String): Boolean
 		+isUppercase(token: String): Boolean
 		+isSpecial(token: String): Boolean
 		+isSpace(token: String): Boolean
@@ -62,102 +61,11 @@ package "state.regex" {
 	EmailAddressDetector ..> TokenRules
 	PasswordDetector ..> TokenRules
 
-	class "IntegerDetector.StartState" as IntegerStartState <<inner>>
-	class "IntegerDetector.DigitsState" as IntegerDigitsState <<inner>>
-	abstract class "IntegerDetector.IntegerState" as IntegerStateBase <<inner>>
-	State <|.. IntegerStateBase
-	IntegerStateBase <|-- IntegerStartState
-	IntegerStateBase <|-- IntegerDigitsState
-	IntegerDetector *-- IntegerStartState
-	IntegerDetector *-- IntegerDigitsState
-	IntegerDetector *-- IntegerStateBase
-
-	class "FloatingPointDetector.StartState" as FloatStartState <<inner>>
-	class "FloatingPointDetector.LeadingZeroState" as FloatLeadingZeroState <<inner>>
-	class "FloatingPointDetector.IntegerPartState" as FloatIntegerPartState <<inner>>
-	class "FloatingPointDetector.NeedFractionDigitState" as FloatNeedFractionState <<inner>>
-	class "FloatingPointDetector.FractionPartState" as FloatFractionPartState <<inner>>
-	abstract class "FloatingPointDetector.FloatingPointState" as FloatingPointStateBase <<inner>>
-	State <|.. FloatingPointStateBase
-	FloatingPointStateBase <|-- FloatStartState
-	FloatingPointStateBase <|-- FloatLeadingZeroState
-	FloatingPointStateBase <|-- FloatIntegerPartState
-	FloatingPointStateBase <|-- FloatNeedFractionState
-	FloatingPointStateBase <|-- FloatFractionPartState
-	FloatingPointDetector *-- FloatStartState
-	FloatingPointDetector *-- FloatLeadingZeroState
-	FloatingPointDetector *-- FloatIntegerPartState
-	FloatingPointDetector *-- FloatNeedFractionState
-	FloatingPointDetector *-- FloatFractionPartState
-	FloatingPointDetector *-- FloatingPointStateBase
-
-	class "BinaryOnesDetector.StartState" as BinaryStartState <<inner>>
-	class "BinaryOnesDetector.LastWasOneState" as BinaryLastWasOneState <<inner>>
-	class "BinaryOnesDetector.LastWasZeroState" as BinaryLastWasZeroState <<inner>>
-	abstract class "BinaryOnesDetector.BinaryOnesState" as BinaryOnesStateBase <<inner>>
-	State <|.. BinaryOnesStateBase
-	BinaryOnesStateBase <|-- BinaryStartState
-	BinaryOnesStateBase <|-- BinaryLastWasOneState
-	BinaryOnesStateBase <|-- BinaryLastWasZeroState
-	BinaryOnesDetector *-- BinaryStartState
-	BinaryOnesDetector *-- BinaryLastWasOneState
-	BinaryOnesDetector *-- BinaryLastWasZeroState
-	BinaryOnesDetector *-- BinaryOnesStateBase
-
-	class "EmailAddressDetector.StartState" as EmailStartState <<inner>>
-	class "EmailAddressDetector.Part1State" as EmailPart1State <<inner>>
-	class "EmailAddressDetector.NeedPart2State" as EmailNeedPart2State <<inner>>
-	class "EmailAddressDetector.Part2State" as EmailPart2State <<inner>>
-	class "EmailAddressDetector.NeedPart3State" as EmailNeedPart3State <<inner>>
-	class "EmailAddressDetector.Part3State" as EmailPart3State <<inner>>
-	abstract class "EmailAddressDetector.EmailAddressState" as EmailAddressStateBase <<inner>>
-	State <|.. EmailAddressStateBase
-	EmailAddressStateBase <|-- EmailStartState
-	EmailAddressStateBase <|-- EmailPart1State
-	EmailAddressStateBase <|-- EmailNeedPart2State
-	EmailAddressStateBase <|-- EmailPart2State
-	EmailAddressStateBase <|-- EmailNeedPart3State
-	EmailAddressStateBase <|-- EmailPart3State
-	EmailAddressDetector *-- EmailStartState
-	EmailAddressDetector *-- EmailPart1State
-	EmailAddressDetector *-- EmailNeedPart2State
-	EmailAddressDetector *-- EmailPart2State
-	EmailAddressDetector *-- EmailNeedPart3State
-	EmailAddressDetector *-- EmailPart3State
-	EmailAddressDetector *-- EmailAddressStateBase
-
-	class "PasswordDetector.CollectingState" as PasswordCollectingState <<inner>>
-	class "PasswordDetector.EnforcingState" as PasswordEnforcingState <<inner>>
-	abstract class "PasswordDetector.PasswordState" as PasswordStateBase <<inner>>
-	interface "PasswordDetector.ComplexityState" as PasswordComplexityState <<inner>>
-	abstract class "PasswordDetector.RejectingComplexityState" as PasswordRejectingComplexityState <<inner>>
-	class "PasswordDetector.MissingUpperAndSpecial" as PasswordMissingUpperAndSpecial <<inner>>
-	class "PasswordDetector.MissingUpperWithTrailingSpecial" as PasswordMissingUpperWithTrailingSpecial <<inner>>
-	class "PasswordDetector.MissingUpperNoTrailingSpecial" as PasswordMissingUpperNoTrailingSpecial <<inner>>
-	class "PasswordDetector.MissingSpecial" as PasswordMissingSpecial <<inner>>
-	class "PasswordDetector.UpperAndSpecialTrailing" as PasswordUpperAndSpecialTrailing <<inner>>
-	class "PasswordDetector.UpperAndSpecialReady" as PasswordUpperAndSpecialReady <<inner>>
-	State <|.. PasswordStateBase
-	PasswordStateBase <|-- PasswordCollectingState
-	PasswordStateBase <|-- PasswordEnforcingState
-	PasswordComplexityState <|.. PasswordRejectingComplexityState
-	PasswordComplexityState <|.. PasswordUpperAndSpecialReady
-	PasswordRejectingComplexityState <|-- PasswordMissingUpperAndSpecial
-	PasswordRejectingComplexityState <|-- PasswordMissingUpperWithTrailingSpecial
-	PasswordRejectingComplexityState <|-- PasswordMissingUpperNoTrailingSpecial
-	PasswordRejectingComplexityState <|-- PasswordMissingSpecial
-	PasswordRejectingComplexityState <|-- PasswordUpperAndSpecialTrailing
-	PasswordDetector *-- PasswordCollectingState
-	PasswordDetector *-- PasswordEnforcingState
-	PasswordDetector *-- PasswordStateBase
-	PasswordDetector *-- PasswordComplexityState
-	PasswordDetector *-- PasswordRejectingComplexityState
-	PasswordDetector *-- PasswordMissingUpperAndSpecial
-	PasswordDetector *-- PasswordMissingUpperWithTrailingSpecial
-	PasswordDetector *-- PasswordMissingUpperNoTrailingSpecial
-	PasswordDetector *-- PasswordMissingSpecial
-	PasswordDetector *-- PasswordUpperAndSpecialTrailing
-	PasswordDetector *-- PasswordUpperAndSpecialReady
+	!include detectors/IntegerDetectorFragment.puml
+	!include detectors/FloatingPointDetectorFragment.puml
+	!include detectors/BinaryOnesDetectorFragment.puml
+	!include detectors/EmailAddressDetectorFragment.puml
+	!include detectors/PasswordDetectorFragment.puml
 }
 
 note bottom of ContextDetector

@@ -1,6 +1,10 @@
-@startuml Context
+@startuml ContextDetector
 
 !include State.puml
+
+interface Detector {
+  +detect(input: String): Boolean
+}
 
 abstract class ContextDetector {
   +detect(input: String): Boolean
@@ -8,14 +12,17 @@ abstract class ContextDetector {
   +transitionTo(state: State): void
   +accept(): void
   +reject(): void
-  #initialState(): State
-  #endOfInput(): void
-  #resetForInput(): void
+  #createInitialState(): State
+  #beforeDetection(): void
+  #afterInputConsumed(): void
   -tokens: List<String>
   -index: Int
   -terminal: Boolean
-  -currentState: State
+  #currentState: State
   -accepted: Boolean
 }
+
+Detector <|.. ContextDetector
+ContextDetector o--> State : currentState
 
 @enduml

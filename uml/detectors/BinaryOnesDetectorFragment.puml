@@ -1,0 +1,12 @@
+class "BinaryOnesDetector.StartState" as BinaryStartState <<inner>>
+class "BinaryOnesDetector.LastWasOneState" as BinaryLastWasOneState <<inner>>
+class "BinaryOnesDetector.LastWasZeroState" as BinaryLastWasZeroState <<inner>>
+abstract class "BinaryOnesDetector.BinaryOnesState" as BinaryOnesStateBase <<inner>>
+State <|.. BinaryOnesStateBase
+BinaryOnesStateBase <|-- BinaryStartState
+BinaryOnesStateBase <|-- BinaryLastWasOneState
+BinaryOnesStateBase <|-- BinaryLastWasZeroState
+BinaryOnesDetector *-- BinaryStartState
+BinaryOnesDetector *-- BinaryLastWasOneState
+BinaryOnesDetector *-- BinaryLastWasZeroState
+BinaryOnesDetector *-- BinaryOnesStateBase

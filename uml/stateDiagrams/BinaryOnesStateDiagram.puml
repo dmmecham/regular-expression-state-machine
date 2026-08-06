@@ -1,9 +1,9 @@
 @startuml BinaryOnesStateMachine
 title Binary (Starts and Ends With 1) State Diagram
 
-state "Read First Character" as Start
-state "Last Character Was 1" as LastOne
-state "Last Character Was 0" as LastZero
+state "StartState" as Start
+state "LastWasOneState" as LastOne
+state "LastWasZeroState" as LastZero
 state "Accept" as Accept
 state "Reject" as Reject
 

@@ -1,12 +1,12 @@
 @startuml EmailAddressStateMachine
 title Email Detector State Diagram
 
-state "Need Part 1 Char" as Start
-state "Read Part 1" as Part1
-state "Need Part 2 Char" as NeedPart2
-state "Read Part 2" as Part2
-state "Need Part 3 Char" as NeedPart3
-state "Read Part 3" as Part3
+state "StartState" as Start
+state "Part1State" as Part1
+state "NeedPart2State" as NeedPart2
+state "Part2State" as Part2
+state "NeedPart3State" as NeedPart3
+state "Part3State" as Part3
 state "Accept" as Accept
 state "Reject" as Reject
 

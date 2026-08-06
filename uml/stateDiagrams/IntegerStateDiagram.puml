@@ -1,8 +1,8 @@
 @startuml IntegerStateMachine
 title Integer Detector State Diagram
 
-state "Read First Character" as Start
-state "Read Remaining Digits" as Digits
+state "StartState" as Start
+state "DigitsState" as Digits
 state "Accept" as Accept
 state "Reject" as Reject
 

@@ -1,0 +1,9 @@
+class "IntegerDetector.StartState" as IntegerStartState <<inner>>
+class "IntegerDetector.DigitsState" as IntegerDigitsState <<inner>>
+abstract class "IntegerDetector.IntegerState" as IntegerStateBase <<inner>>
+State <|.. IntegerStateBase
+IntegerStateBase <|-- IntegerStartState
+IntegerStateBase <|-- IntegerDigitsState
+IntegerDetector *-- IntegerStartState
+IntegerDetector *-- IntegerDigitsState
+IntegerDetector *-- IntegerStateBase

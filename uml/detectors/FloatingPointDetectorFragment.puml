@@ -1,0 +1,18 @@
+class "FloatingPointDetector.StartState" as FloatStartState <<inner>>
+class "FloatingPointDetector.LeadingZeroState" as FloatLeadingZeroState <<inner>>
+class "FloatingPointDetector.IntegerPartState" as FloatIntegerPartState <<inner>>
+class "FloatingPointDetector.NeedFractionDigitState" as FloatNeedFractionState <<inner>>
+class "FloatingPointDetector.FractionPartState" as FloatFractionPartState <<inner>>
+abstract class "FloatingPointDetector.FloatingPointState" as FloatingPointStateBase <<inner>>
+State <|.. FloatingPointStateBase
+FloatingPointStateBase <|-- FloatStartState
+FloatingPointStateBase <|-- FloatLeadingZeroState
+FloatingPointStateBase <|-- FloatIntegerPartState
+FloatingPointStateBase <|-- FloatNeedFractionState
+FloatingPointStateBase <|-- FloatFractionPartState
+FloatingPointDetector *-- FloatStartState
+FloatingPointDetector *-- FloatLeadingZeroState
+FloatingPointDetector *-- FloatIntegerPartState
+FloatingPointDetector *-- FloatNeedFractionState
+FloatingPointDetector *-- FloatFractionPartState
+FloatingPointDetector *-- FloatingPointStateBase

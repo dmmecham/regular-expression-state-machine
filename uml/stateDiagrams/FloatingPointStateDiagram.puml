@@ -1,11 +1,11 @@
 @startuml FloatingPointStateMachine
 title Floating Point Detector State Diagram
 
-state "Read First Character" as Start
-state "Saw Leading 0" as LeadingZero
-state "Integer Part (Before .)" as IntPart
-state "Saw . (Need Digit)" as NeedFrac
-state "Fraction Part (After .)" as FracPart
+state "StartState" as Start
+state "LeadingZeroState" as LeadingZero
+state "IntegerPartState" as IntPart
+state "NeedFractionDigitState" as NeedFrac
+state "FractionPartState" as FracPart
 state "Accept" as Accept
 state "Reject" as Reject
 

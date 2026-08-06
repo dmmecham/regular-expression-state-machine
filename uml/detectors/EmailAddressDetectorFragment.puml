@@ -1,0 +1,21 @@
+class "EmailAddressDetector.StartState" as EmailStartState <<inner>>
+class "EmailAddressDetector.Part1State" as EmailPart1State <<inner>>
+class "EmailAddressDetector.NeedPart2State" as EmailNeedPart2State <<inner>>
+class "EmailAddressDetector.Part2State" as EmailPart2State <<inner>>
+class "EmailAddressDetector.NeedPart3State" as EmailNeedPart3State <<inner>>
+class "EmailAddressDetector.Part3State" as EmailPart3State <<inner>>
+abstract class "EmailAddressDetector.EmailAddressState" as EmailAddressStateBase <<inner>>
+State <|.. EmailAddressStateBase
+EmailAddressStateBase <|-- EmailStartState
+EmailAddressStateBase <|-- EmailPart1State
+EmailAddressStateBase <|-- EmailNeedPart2State
+EmailAddressStateBase <|-- EmailPart2State
+EmailAddressStateBase <|-- EmailNeedPart3State
+EmailAddressStateBase <|-- EmailPart3State
+EmailAddressDetector *-- EmailStartState
+EmailAddressDetector *-- EmailPart1State
+EmailAddressDetector *-- EmailNeedPart2State
+EmailAddressDetector *-- EmailPart2State
+EmailAddressDetector *-- EmailNeedPart3State
+EmailAddressDetector *-- EmailPart3State
+EmailAddressDetector *-- EmailAddressStateBase
